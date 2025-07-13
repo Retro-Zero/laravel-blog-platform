@@ -26,6 +26,16 @@ Route::middleware('auth')->group(function () {
         Route::put('/{post}', [PostController::class, 'update'])->name('update');
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
     });
+    // Dashboard comments routes
+    Route::prefix('dashboard/comments')->name('dashboard.comments.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\CommentController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\CommentController::class, 'store'])->name('store');
+        Route::get('/{comment}/edit', [\App\Http\Controllers\CommentController::class, 'edit'])->name('edit');
+        Route::put('/{comment}', [\App\Http\Controllers\CommentController::class, 'update'])->name('update');
+        Route::delete('/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy'])->name('destroy');
+    });
+    // Post comments (store)
+    Route::post('/posts/{post}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('posts.comments.store');
 });
 
 // Public posts route - anyone can view published posts
