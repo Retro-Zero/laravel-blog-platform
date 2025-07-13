@@ -9,12 +9,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    @if(session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     @if($comments->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -56,10 +50,14 @@
                                                     <a href="{{ route('dashboard.comments.edit', $comment) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                                                 @endcan
                                                 @can('delete', $comment)
-                                                    <form action="{{ route('dashboard.comments.destroy', $comment) }}" method="POST" class="inline">
+                                                    <button type="button" 
+                                                            onclick="showDeleteConfirm(() => { document.getElementById('delete-form-{{ $comment->id }}').submit(); })" 
+                                                            class="text-red-600 hover:text-red-900">
+                                                        Delete
+                                                    </button>
+                                                    <form id="delete-form-{{ $comment->id }}" action="{{ route('dashboard.comments.destroy', $comment) }}" method="POST" class="hidden">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure?')">Delete</button>
                                                     </form>
                                                 @endcan
                                             </td>
