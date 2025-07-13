@@ -21,9 +21,9 @@
                     <x-nav-link :href="route('dashboard.posts.index')" :active="request()->routeIs('dashboard.posts.*')">
                         {{ __('My Posts') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard.comments.index')" :active="request()->routeIs('dashboard.comments.*')">
-                        {{ __('Comments') }}
-                    </x-nav-link>
+                                            <x-nav-link :href="route('dashboard.comments.index')" :active="request()->routeIs('dashboard.comments.*')">
+                            {{ __('Comments') }}
+                        </x-nav-link>
                 </div>
             </div>
 

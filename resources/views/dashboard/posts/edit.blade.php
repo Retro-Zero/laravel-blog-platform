@@ -24,8 +24,13 @@
                             <!-- Content -->
                             <div>
                                 <x-input-label for="content" :value="__('Content')" />
-                                <textarea id="content" name="content" rows="10" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>{{ old('content', $post->content) }}</textarea>
-                                <x-input-error :messages="$errors->get('content')" class="mt-2" />
+                                <x-quill-editor 
+                                    name="content" 
+                                    :value="old('content', $post->content)" 
+                                    placeholder="Write your post content here..."
+                                    height="400px"
+                                    required
+                                />
                             </div>
 
                             <!-- Category -->

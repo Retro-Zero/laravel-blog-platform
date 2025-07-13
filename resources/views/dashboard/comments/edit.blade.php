@@ -15,8 +15,13 @@
                         
                         <div class="mb-4">
                             <x-input-label for="content" :value="__('Comment')" />
-                            <textarea id="content" name="content" rows="4" class="block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>{{ old('content', $comment->content) }}</textarea>
-                            <x-input-error :messages="$errors->get('content')" class="mt-2" />
+                            <x-quill-editor 
+                                name="content" 
+                                :value="old('content', $comment->content)" 
+                                placeholder="Write your comment here..."
+                                height="200px"
+                                required
+                            />
                         </div>
 
                         <div class="mb-4">

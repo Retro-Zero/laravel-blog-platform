@@ -32,7 +32,7 @@
 
             <!-- Content -->
             <div class="prose prose-lg max-w-none">
-                {!! nl2br(e($post->content)) !!}
+                {!! $post->content !!}
             </div>
 
             <!-- Comments Section -->

@@ -1,5 +1,6 @@
 import './bootstrap';
 import './sweetalert';
+import './quill';
 
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
