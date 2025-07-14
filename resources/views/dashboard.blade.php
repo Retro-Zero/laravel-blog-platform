@@ -133,7 +133,44 @@
                 </div>
             </div>
 
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                <!-- Post Views Chart -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Post Views (Last 7 Days)</h3>
+                    <div class="h-64">
+                        <canvas id="postViewsChart"></canvas>
+                    </div>
+                </div>
 
+                <!-- Comments Activity Chart -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Comments Activity (Last 7 Days)</h3>
+                    <div class="h-64">
+                        <canvas id="commentsActivityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Posts Chart -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Monthly Posts (Last 6 Months)</h3>
+                    <div class="h-64">
+                        <canvas id="monthlyPostsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Post Categories Chart -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Posts by Category</h3>
+                    <div class="h-64">
+                        <canvas id="postCategoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        window.chartData = @json($chartData ?? []);
+    </script>
 </x-app-layout>
