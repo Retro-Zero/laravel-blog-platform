@@ -15,13 +15,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Post Views',
                     data: window.chartData?.postViews?.data || [],
                     borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.15)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
@@ -31,12 +33,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }
@@ -54,11 +69,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     data: window.chartData?.postCategories?.data || [],
                     backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(147, 51, 234, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
+                        'rgba(59, 130, 246, 0.9)',
+                        'rgba(147, 51, 234, 0.9)',
+                        'rgba(16, 185, 129, 0.9)',
+                        'rgba(245, 158, 11, 0.9)',
+                        'rgba(239, 68, 68, 0.9)'
                     ],
                     borderWidth: 2,
                     borderColor: '#ffffff'
@@ -89,13 +104,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Posts Published',
                     data: window.chartData?.monthlyPosts?.data || [],
-                    backgroundColor: 'rgba(147, 51, 234, 0.8)',
+                    backgroundColor: 'rgba(147, 51, 234, 0.9)',
                     borderRadius: 8,
-                    borderSkipped: false
+                    borderSkipped: false,
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
@@ -105,12 +122,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }
@@ -129,13 +159,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Comments Received',
                     data: window.chartData?.commentsActivity?.data || [],
                     borderColor: 'rgb(16, 185, 129)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
@@ -145,12 +177,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }

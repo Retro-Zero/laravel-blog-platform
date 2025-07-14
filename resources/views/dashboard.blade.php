@@ -133,41 +133,76 @@
                 </div>
             </div>
 
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                <!-- Post Views Chart -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Post Views (Last 7 Days)</h3>
-                    <div class="h-64">
-                        <canvas id="postViewsChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Comments Activity Chart -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Comments Activity (Last 7 Days)</h3>
-                    <div class="h-64">
-                        <canvas id="commentsActivityChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Monthly Posts Chart -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Monthly Posts (Last 6 Months)</h3>
-                    <div class="h-64">
-                        <canvas id="monthlyPostsChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Post Categories Chart -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Posts by Category</h3>
-                    <div class="h-64">
-                        <canvas id="postCategoriesChart"></canvas>
+            <!-- Charts Section (Tabbed) -->
+            <div class="max-w-7xl mx-auto mt-12 px-4 sm:px-6 lg:px-8">
+                <div class="bg-gradient-to-br from-white via-blue-50 to-purple-50 rounded-3xl shadow-xl border border-gray-100 p-0 overflow-hidden w-full">
+                    <!-- Chart Panels with Centered Tabs -->
+                    <div class="relative min-h-[370px] flex flex-col items-center justify-center px-8 py-10">
+                        <!-- Tabs -->
+                        <div class="flex justify-center gap-2 mb-8">
+                            <button class="chart-tab px-5 py-2 rounded-full font-semibold text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 active" data-chart="views">Views</button>
+                            <button class="chart-tab px-5 py-2 rounded-full font-semibold text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400" data-chart="comments">Comments</button>
+                            <button class="chart-tab px-5 py-2 rounded-full font-semibold text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400" data-chart="monthly">Monthly</button>
+                            <button class="chart-tab px-5 py-2 rounded-full font-semibold text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400" data-chart="categories">Categories</button>
+                        </div>
+                        <!-- Views Chart -->
+                        <div class="chart-panel" id="chart-panel-views">
+                            <h3 class="text-2xl font-bold text-blue-700 mb-1 text-center">Post Views</h3>
+                            <p class="text-gray-500 text-center mb-6">Unique views in the last 7 days</p>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="postViewsChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Comments Chart -->
+                        <div class="chart-panel hidden" id="chart-panel-comments">
+                            <h3 class="text-2xl font-bold text-green-700 mb-1 text-center">Comments Activity</h3>
+                            <p class="text-gray-500 text-center mb-6">Comments received in the last 7 days</p>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="commentsActivityChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Monthly Posts Chart -->
+                        <div class="chart-panel hidden" id="chart-panel-monthly">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-1 text-center">Monthly Posts</h3>
+                            <p class="text-gray-500 text-center mb-6">Posts published in the last 6 months</p>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="monthlyPostsChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Categories Chart -->
+                        <div class="chart-panel hidden" id="chart-panel-categories">
+                            <h3 class="text-2xl font-bold text-orange-700 mb-1 text-center">Content Categories</h3>
+                            <p class="text-gray-500 text-center mb-6">Distribution of your posts by category</p>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="postCategoriesChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <script>
+                // Simple tab switching for charts
+                document.addEventListener('DOMContentLoaded', function() {
+                    const tabs = document.querySelectorAll('.chart-tab');
+                    const panels = document.querySelectorAll('.chart-panel');
+                    tabs.forEach(tab => {
+                        tab.addEventListener('click', function() {
+                            tabs.forEach(t => t.classList.remove('active', 'bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-orange-100'));
+                            panels.forEach(p => p.classList.add('hidden'));
+                            this.classList.add('active');
+                            if(this.dataset.chart === 'views') this.classList.add('bg-blue-100');
+                            if(this.dataset.chart === 'comments') this.classList.add('bg-green-100');
+                            if(this.dataset.chart === 'monthly') this.classList.add('bg-purple-100');
+                            if(this.dataset.chart === 'categories') this.classList.add('bg-orange-100');
+                            document.getElementById('chart-panel-' + this.dataset.chart).classList.remove('hidden');
+                        });
+                    });
+                    // Set initial tab
+                    tabs[0].classList.add('bg-blue-100');
+                });
+            </script>
+
     </div>
 
     <script>
