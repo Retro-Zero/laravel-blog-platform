@@ -37,6 +37,23 @@ class CommentController extends Controller
         return redirect()->route('dashboard.comments.index')->with('success', 'Comment added!');
     }
 
+    // Public: Store a new comment on a specific post
+    public function storeOnPost(Request $request, Post $post): RedirectResponse
+    {
+        $validated = $request->validate([
+            'content' => 'required|string',
+        ]);
+        
+        $validated['user_id'] = auth()->id();
+        $validated['post_id'] = $post->id;
+        $validated['status'] = 'approved';
+        $validated['is_approved'] = true;
+        
+        Comment::create($validated);
+        
+        return redirect()->back()->with('success', 'Comment posted successfully!');
+    }
+
     // Dashboard: Edit a comment (only own comment)
     public function edit(Comment $comment): View
     {

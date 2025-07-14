@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy'])->name('destroy');
     });
     // Post comments (store)
-    Route::post('/posts/{post}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('posts.comments.store');
+    Route::post('/posts/{post}/comments', [\App\Http\Controllers\CommentController::class, 'storeOnPost'])->name('posts.comments.store');
 });
 
 // Public posts route - anyone can view published posts

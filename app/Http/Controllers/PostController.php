@@ -36,7 +36,18 @@ class PostController extends Controller
 
         $post->incrementViewCount();
         
-        return view('posts.show', compact('post'));
+        // Get related posts (same category, excluding current post)
+        $relatedPosts = Post::with(['user', 'category'])
+            ->published()
+            ->where('id', '!=', $post->id)
+            ->when($post->category_id, function ($query) use ($post) {
+                return $query->where('category_id', $post->category_id);
+            })
+            ->latest()
+            ->limit(3)
+            ->get();
+        
+        return view('posts.show', compact('post', 'relatedPosts'));
     }
 
     /**
@@ -74,6 +85,7 @@ class PostController extends Controller
             'status' => 'nullable|in:draft,published,archived',
             'excerpt' => 'nullable|string',
             'featured_image' => 'nullable|string',
+            'featured_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'published_at' => 'nullable|date',
             'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
@@ -81,6 +93,17 @@ class PostController extends Controller
 
         $validated['user_id'] = auth()->id();
         $validated['status'] = $validated['status'] ?? 'draft';
+
+        // Set published_at if status is published
+        if ($validated['status'] === 'published') {
+            $validated['published_at'] = now();
+        }
+
+        // Handle file upload
+        if ($request->hasFile('featured_image_file')) {
+            $imagePath = $request->file('featured_image_file')->store('posts/images', 'public');
+            $validated['featured_image'] = '/storage/' . $imagePath;
+        }
 
         $post = Post::create($validated);
 
@@ -114,10 +137,22 @@ class PostController extends Controller
             'status' => 'nullable|in:draft,published,archived',
             'excerpt' => 'nullable|string',
             'featured_image' => 'nullable|string',
+            'featured_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'published_at' => 'nullable|date',
             'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
         ]);
+
+        // Set published_at if status is published
+        if ($validated['status'] === 'published' && !$post->published_at) {
+            $validated['published_at'] = now();
+        }
+
+        // Handle file upload
+        if ($request->hasFile('featured_image_file')) {
+            $imagePath = $request->file('featured_image_file')->store('posts/images', 'public');
+            $validated['featured_image'] = '/storage/' . $imagePath;
+        }
 
         $post->update($validated);
 
