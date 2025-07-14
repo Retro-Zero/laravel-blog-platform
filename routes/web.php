@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
         Route::put('/{post}', [PostController::class, 'update'])->name('update');
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
+        Route::post('/{post}/toggle-publish', [PostController::class, 'togglePublish'])->name('toggle-publish');
     });
     // Dashboard comments routes
     Route::prefix('dashboard/comments')->name('dashboard.comments.')->group(function () {

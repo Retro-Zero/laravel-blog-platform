@@ -173,6 +173,27 @@ class PostController extends Controller
             ->with('success', 'Post deleted successfully.');
     }
 
+    /**
+     * Toggle publish status via AJAX.
+     */
+    public function togglePublish(Post $post)
+    {
+        $this->authorize('update', $post);
+        $user = auth()->user();
+        if ($post->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        if ($post->status === 'published') {
+            $post->status = 'draft';
+            $post->published_at = null;
+        } else {
+            $post->status = 'published';
+            $post->published_at = now();
+        }
+        $post->save();
+        return response()->json(['status' => $post->status]);
+    }
+
     // API methods for JSON responses
     public function apiIndex()
     {

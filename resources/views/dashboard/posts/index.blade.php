@@ -40,7 +40,7 @@
                             <div class="p-6">
                                 <!-- Status Badge -->
                                 <div class="flex items-center justify-between mb-4">
-                                    <span class="px-3 py-1 text-xs font-semibold rounded-full 
+                                    <span id="status-badge-{{ $post->id }}" class="px-3 py-1 text-xs font-semibold rounded-full 
                                         @if($post->status === 'published') bg-green-100 text-green-800
                                         @elseif($post->status === 'draft') bg-yellow-100 text-yellow-800
                                         @else bg-red-100 text-red-800 @endif">
@@ -98,6 +98,14 @@
                                         @csrf
                                         @method('DELETE')
                                     </form>
+                                    <button type="button" id="publish-toggle-{{ $post->id }}"
+                                        data-url="{{ route('dashboard.posts.toggle-publish', $post) }}"
+                                        class="ml-2 px-4 py-2 rounded-xl font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
+                                        @if($post->status === 'published') bg-green-100 text-green-800 hover:bg-green-200 @else bg-gray-100 text-gray-700 hover:bg-gray-200 @endif"
+                                        onclick="togglePublish({{ $post->id }})">
+                                        <span class="toggle-label">{{ $post->status === 'published' ? 'Unpublish' : 'Publish' }}</span>
+                                        <span class="toggle-spinner hidden ml-2 w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -143,4 +151,78 @@
             overflow: hidden;
         }
     </style>
+
+    <script>
+        function togglePublish(postId) {
+            const btn = document.getElementById('publish-toggle-' + postId);
+            const url = btn.dataset.url;
+            const label = btn.querySelector('.toggle-label');
+            const spinner = btn.querySelector('.toggle-spinner');
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+            })
+            .then(async res => {
+                let data;
+                try { data = await res.json(); } catch (e) { data = {}; }
+                console.log('Toggle publish response:', res.status, data);
+                if (res.ok && (data.status === 'published' || data.status === 'draft')) {
+                    if (data.status === 'published') {
+                        btn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                        btn.classList.add('bg-green-100', 'text-green-800', 'hover:bg-green-200');
+                        label.textContent = 'Unpublish';
+                        // Update status badge
+                        const badge = document.getElementById('status-badge-' + postId);
+                        if (badge) {
+                            badge.textContent = 'Published';
+                            badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                        }
+                        Swal.fire({ icon: 'success', title: 'Post Published', text: 'Your post is now live!', timer: 1500, showConfirmButton: false });
+                    } else {
+                        btn.classList.remove('bg-green-100', 'text-green-800', 'hover:bg-green-200');
+                        btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+                        label.textContent = 'Publish';
+                        // Update status badge
+                        const badge = document.getElementById('status-badge-' + postId);
+                        if (badge) {
+                            badge.textContent = 'Draft';
+                            badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                        }
+                        Swal.fire({ icon: 'info', title: 'Post Unpublished', text: 'Your post is now a draft.', timer: 1500, showConfirmButton: false });
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to update status.' });
+                }
+            })
+            .catch((err) => { 
+                console.error('Toggle publish fetch error:', err);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to update status.' }); 
+            })
+            .finally(() => {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+            });
+        }
+
+        function showDeleteConfirm(onConfirm) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    onConfirm();
+                }
+            });
+        }
+    </script>
 </x-app-layout> 
