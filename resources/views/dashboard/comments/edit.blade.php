@@ -59,9 +59,9 @@
 
                         <!-- Action Buttons -->
                         <div class="flex items-center justify-end pt-6 border-t border-gray-200">
-                            <x-secondary-button type="button" onclick="window.history.back()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors mr-4">
+                            <button type="button" onclick="window.history.back()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors mr-4">
                                 {{ __('Cancel') }}
-                            </x-secondary-button>
+                            </button>
                             <x-primary-button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors">
                                 {{ __('Update Comment') }}
                             </x-primary-button>

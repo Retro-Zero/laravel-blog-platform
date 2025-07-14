@@ -100,6 +100,14 @@ class Post extends Model
     }
 
     /**
+     * Get the views for the post.
+     */
+    public function views(): HasMany
+    {
+        return $this->hasMany(PostView::class);
+    }
+
+    /**
      * Scope a query to only include published posts.
      */
     public function scopePublished(Builder $query): void
@@ -226,11 +234,47 @@ class Post extends Model
     }
 
     /**
-     * Increment the view count.
+     * Increment the view count (unique per user).
      */
     public function incrementViewCount(): void
     {
-        $this->increment('view_count');
+        $request = request();
+        $userId = auth()->id();
+        $ipAddress = $request->ip();
+        $userAgent = $request->userAgent();
+
+        // Check if this user has already viewed this post
+        $existingView = $this->views()
+            ->where(function ($query) use ($userId, $ipAddress, $userAgent) {
+                if ($userId) {
+                    // For authenticated users, check by user_id
+                    $query->where('user_id', $userId);
+                } else {
+                    // For anonymous users, check by IP and user agent
+                    $query->where('ip_address', $ipAddress)
+                          ->where('user_agent', $userAgent);
+                }
+            })
+            ->first();
+
+        // If no existing view, create a new one and increment count
+        if (!$existingView) {
+            $this->views()->create([
+                'user_id' => $userId,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent,
+            ]);
+
+            $this->increment('view_count');
+        }
+    }
+
+    /**
+     * Get the unique view count.
+     */
+    public function getUniqueViewCountAttribute(): int
+    {
+        return $this->views()->count();
     }
 
     /**

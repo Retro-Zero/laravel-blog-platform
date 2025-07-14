@@ -48,7 +48,7 @@
                                 
                                 <!-- Comment Content -->
                                 <div class="mb-4">
-                                    <p class="text-gray-700 line-clamp-3">{{ $comment->content }}</p>
+                                    <div class="text-gray-700 prose prose-sm max-w-none">{!! $comment->content !!}</div>
                                 </div>
                                 
                                 <!-- Post Link -->
