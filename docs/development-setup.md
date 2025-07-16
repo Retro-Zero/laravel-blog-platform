@@ -1,40 +1,48 @@
-# Development Setup
+# BlogVerse Development Setup
 
-This guide documents my local development environment setup for the Blog Platform project. It reflects my development workflow and tooling preferences.
+This guide provides comprehensive instructions for setting up the BlogVerse development environment. It covers local development, testing, debugging, and contribution workflows.
 
-## 🛠️ Prerequisites
+## 🛠️ Development Environment Requirements
 
 ### Required Software
-- **PHP** (>= 8.1)
-- **Composer** (>= 2.0)
-- **Node.js** (>= 16.0)
-- **MySQL** (>= 8.0)
-- **Git**
+- **PHP 8.1+** with extensions:
+  - BCMath, Ctype, cURL, DOM, Fileinfo, JSON, Mbstring, OpenSSL, PCRE, PDO, Tokenizer, XML
+- **Composer 2.0+** (PHP package manager)
+- **Node.js 16.0+** (for asset compilation)
+- **MySQL 8.0+** or **MariaDB 10.2+**
+- **Git** (version control)
 
 ### Recommended Software
-- **VS Code** or **PHPStorm** (IDE)
-- **TablePlus** or **phpMyAdmin** (Database GUI)
-- **Postman** or **Insomnia** (API Testing)
-- **Chrome DevTools** (Frontend Debugging)
+- **VS Code** with extensions:
+  - Laravel Extension Pack
+  - PHP Intelephense
+  - Tailwind CSS IntelliSense
+  - GitLens
+- **Laravel Valet** (macOS) or **Laravel Homestead**
+- **Redis** (for caching and sessions)
+- **MailHog** (for email testing)
 
 ## 🚀 Local Development Setup
 
-### 1. Clone Repository
+### 1. Clone the Repository
+
 ```bash
-git clone <repository-url>
-cd blog
+git clone https://github.com/Retro-Zero/laravel-blog-platform.git
+cd laravel-blog-platform
 ```
 
 ### 2. Install Dependencies
+
 ```bash
-# PHP dependencies
+# Install PHP dependencies
 composer install
 
-# Node.js dependencies
+# Install Node.js dependencies
 npm install
 ```
 
 ### 3. Environment Configuration
+
 ```bash
 # Copy environment file
 cp .env.example .env
@@ -43,83 +51,186 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Database Setup
-```bash
-# Create database
-mysql -u root -p -e "CREATE DATABASE blog_platform;"
+Edit `.env` for local development:
 
-# Run migrations
-php artisan migrate
-
-# Seed database
-php artisan db:seed
-```
-
-### 5. Frontend Setup
-```bash
-# Install Tailwind CSS
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-
-# Build assets
-npm run dev
-```
-
-### 6. File Storage
-```bash
-# Create storage link
-php artisan storage:link
-```
-
-## 🔧 Development Configuration
-
-### Environment Variables (.env)
 ```env
-APP_NAME="Blog Platform"
+APP_NAME="BlogVerse by Arian Karimi"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
-# Database
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=blog_platform
-DB_USERNAME=root
-DB_PASSWORD=
+DB_DATABASE=blogverse_dev
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 
-# Mail (for development)
-MAIL_MAILER=log
-MAIL_FROM_ADDRESS="noreply@blogplatform.com"
-MAIL_FROM_NAME="${APP_NAME}"
-
-# Cache
 CACHE_DRIVER=file
 SESSION_DRIVER=file
 QUEUE_CONNECTION=sync
+
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="noreply@blogverse.local"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-### Tailwind Configuration (tailwind.config.js)
+### 4. Database Setup
+
+```bash
+# Create database
+mysql -u root -p -e "CREATE DATABASE blogverse_dev;"
+
+# Run migrations
+php artisan migrate
+
+# Seed with demo data
+php artisan db:seed
+```
+
+### 5. Asset Compilation
+
+```bash
+# Development mode (with hot reload)
+npm run dev
+
+# Or build for production
+npm run build
+```
+
+### 6. Start Development Server
+
+```bash
+# Start Laravel development server
+php artisan serve
+
+# In another terminal, watch for asset changes
+npm run dev
+```
+
+Visit `http://localhost:8000` to see BlogVerse in action!
+
+## 🧪 Testing Setup
+
+### PHPUnit Configuration
+
+BlogVerse includes comprehensive test suites:
+
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test file
+php artisan test tests/Feature/PostTest.php
+
+# Run tests with coverage
+php artisan test --coverage
+```
+
+### Test Structure
+
+```
+tests/
+├── Feature/              # Feature tests
+│   ├── Auth/            # Authentication tests
+│   ├── PostTest.php     # Post functionality
+│   ├── CommentTest.php  # Comment system
+│   └── ProfileTest.php  # User profile
+└── Unit/                # Unit tests
+    ├── PostTest.php     # Post model tests
+    ├── UserTest.php     # User model tests
+    └── CategoryTest.php # Category model tests
+```
+
+### Writing Tests
+
+Example test for post creation:
+
+```php
+public function test_user_can_create_post()
+{
+    $user = User::factory()->create();
+    
+    $response = $this->actingAs($user)
+        ->post('/posts', [
+            'title' => 'Test Post',
+            'content' => 'Test content',
+            'category_id' => 1
+        ]);
+    
+    $response->assertRedirect();
+    $this->assertDatabaseHas('posts', [
+        'title' => 'Test Post',
+        'user_id' => $user->id
+    ]);
+}
+```
+
+## 🔧 Development Tools
+
+### Laravel Telescope (Debugging)
+
+Install Laravel Telescope for debugging:
+
+```bash
+composer require laravel/telescope --dev
+php artisan telescope:install
+php artisan migrate
+```
+
+Access Telescope at `http://localhost:8000/telescope`
+
+### Laravel Debugbar
+
+```bash
+composer require barryvdh/laravel-debugbar --dev
+```
+
+### Code Quality Tools
+
+```bash
+# Install Laravel Pint for code formatting
+composer require laravel/pint --dev
+
+# Format code
+./vendor/bin/pint
+
+# Install PHPStan for static analysis
+composer require nunomaduro/larastan --dev
+
+# Run static analysis
+./vendor/bin/phpstan analyse
+```
+
+## 🎨 Frontend Development
+
+### Tailwind CSS Development
+
+```bash
+# Watch for CSS changes
+npm run dev
+
+# Build for production
+npm run build
+```
+
+### Customizing Styles
+
+Edit `tailwind.config.js` for theme customization:
+
 ```javascript
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./resources/**/*.blade.php",
     "./resources/**/*.js",
-    "./resources/**/*.vue",
   ],
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        }
+        // Custom colors
       },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+      animation: {
+        // Custom animations
       }
     },
   },
@@ -127,292 +238,201 @@ module.exports = {
 }
 ```
 
-### VS Code Extensions (Recommended)
-```json
-{
-  "recommendations": [
-    "bmewburn.vscode-intelephense-client",
-    "onecentlin.laravel-blade",
-    "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode",
-    "ms-vscode.vscode-typescript-next",
-    "formulahendry.auto-rename-tag",
-    "christian-kohler.path-intellisense"
-  ]
-}
-```
+### JavaScript Development
 
-## 🎯 Development Workflow
+Main JavaScript files:
+- `resources/js/app.js` - Main entry point
+- `resources/js/quill.js` - Rich text editor
+- `resources/js/sweetalert.js` - Notifications
 
-### Starting Development Server
+## 🔍 Debugging Techniques
+
+### Laravel Logs
+
 ```bash
-# Terminal 1: Laravel server
-php artisan serve
-
-# Terminal 2: Asset compilation (watch mode)
-npm run dev
-```
-
-### Database Workflow
-```bash
-# Create new migration
-php artisan make:migration create_posts_table
-
-# Run migrations
-php artisan migrate
-
-# Rollback last migration
-php artisan migrate:rollback
-
-# Reset database
-php artisan migrate:fresh --seed
-```
-
-### Frontend Workflow
-```bash
-# Watch for changes
-npm run dev
-
-# Build for production
-npm run build
-
-# Check for issues
-npm run lint
-```
-
-## 🧪 Testing Setup
-
-### PHP Testing
-```bash
-# Run all tests
-php artisan test
-
-# Run specific test
-php artisan test --filter=PostTest
-
-# Run with coverage
-php artisan test --coverage
-```
-
-### Frontend Testing
-```bash
-# Run JavaScript tests (if configured)
-npm test
-
-# Run linting
-npm run lint
-```
-
-## 🔍 Debugging Tools
-
-### Laravel Debugging
-```bash
-# Enable debug mode
-APP_DEBUG=true
-
-# Check logs
+# View Laravel logs
 tail -f storage/logs/laravel.log
 
-# Use Tinker for debugging
-php artisan tinker
-```
-
-### Frontend Debugging
-```bash
-# Browser DevTools
-# - Console for JavaScript errors
-# - Network tab for API calls
-# - Elements tab for CSS issues
-# - Sources tab for debugging
+# Clear logs
+php artisan log:clear
 ```
 
 ### Database Debugging
+
 ```bash
 # Enable query logging
-php artisan tinker
 DB::enableQueryLog();
 // Your code here
 dd(DB::getQueryLog());
+
+# Or use Laravel Debugbar
 ```
 
-## 📁 Project Structure for Development
+### Frontend Debugging
 
-### Key Directories
-```
-blog/
-├── app/Http/Controllers/    # Controllers
-├── app/Models/             # Eloquent models
-├── app/Services/           # Business logic
-├── database/migrations/    # Database migrations
-├── database/seeders/       # Database seeders
-├── resources/views/        # Blade templates
-├── resources/css/          # CSS source
-├── resources/js/           # JavaScript source
-├── routes/                 # Route definitions
-└── tests/                  # Test files
-```
-
-### Development Files
-```
-blog/
-├── .env                    # Environment variables
-├── .env.example           # Environment template
-├── composer.json           # PHP dependencies
-├── package.json            # Node.js dependencies
-├── tailwind.config.js      # Tailwind configuration
-├── vite.config.js          # Vite configuration
-└── phpunit.xml            # PHPUnit configuration
-```
-
-## 🛠️ Development Tools
-
-### Laravel Artisan Commands
 ```bash
-# Create new controller
-php artisan make:controller PostController
-
-# Create new model
-php artisan make:model Post -m
-
-# Create new migration
-php artisan make:migration create_posts_table
-
-# Create new seeder
-php artisan make:seeder PostSeeder
-
-# Create new middleware
-php artisan make:middleware AdminMiddleware
+# Browser developer tools
+# Check console for JavaScript errors
+# Use Vue DevTools if using Vue.js
 ```
 
-### Composer Commands
+## 📝 Code Style and Standards
+
+### PHP Code Style
+
+BlogVerse follows PSR-12 standards:
+
 ```bash
-# Install package
-composer require package-name
-
-# Update dependencies
-composer update
-
-# Check for security issues
-composer audit
-
-# Optimize autoloader
-composer dump-autoload
-```
-
-### NPM Commands
-```bash
-# Install package
-npm install package-name
-
-# Install dev dependency
-npm install -D package-name
-
-# Update dependencies
-npm update
-
-# Check for security issues
-npm audit
-```
-
-## 🔧 IDE Configuration
-
-### VS Code Settings (.vscode/settings.json)
-```json
-{
-  "php.validate.executablePath": "/usr/bin/php",
-  "php.suggest.basic": false,
-  "emmet.includeLanguages": {
-    "blade": "html"
-  },
-  "files.associations": {
-    "*.blade.php": "blade"
-  },
-  "tailwindCSS.includeLanguages": {
-    "blade": "html"
-  }
-}
-```
-
-### PHPStorm Configuration
-- Enable Laravel plugin
-- Configure PHP interpreter
-- Set up database connection
-- Configure Tailwind CSS support
-
-## 🚀 Quick Development Commands
-
-### Daily Development
-```bash
-# Start development
-php artisan serve
-npm run dev
-
-# Check status
-php artisan route:list
-php artisan migrate:status
-
-# Clear caches
-php artisan optimize:clear
-```
-
-### Before Committing
-```bash
-# Run tests
-php artisan test
+# Format PHP code
+./vendor/bin/pint
 
 # Check code style
-./vendor/bin/pint
+./vendor/bin/pint --test
+```
+
+### Blade Template Standards
+
+- Use consistent indentation (4 spaces)
+- Keep templates focused and readable
+- Use components for reusable elements
+- Follow Laravel naming conventions
+
+### JavaScript Standards
+
+- Use ES6+ features
+- Follow consistent naming conventions
+- Comment complex logic
+- Use proper error handling
+
+## 🚀 Deployment Preparation
+
+### Production Build
+
+```bash
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
 # Build assets
 npm run build
 
-# Check for issues
-composer audit
-npm audit
+# Set proper permissions
+chmod -R 775 storage bootstrap/cache
 ```
 
-## 📚 Development Resources
+### Environment Variables
+
+Ensure production `.env` has:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+DB_CONNECTION=mysql
+DB_HOST=your_db_host
+DB_DATABASE=your_db_name
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+```
+
+## 🔄 Version Control Workflow
+
+### Git Workflow
+
+```bash
+# Create feature branch
+git checkout -b feature/new-feature
+
+# Make changes and commit
+git add .
+git commit -m "Add new feature"
+
+# Push to remote
+git push origin feature/new-feature
+
+# Create pull request
+# Merge after review
+```
+
+### Commit Message Standards
+
+```
+feat: add new post creation feature
+fix: resolve comment display issue
+docs: update installation guide
+style: improve button styling
+refactor: optimize database queries
+test: add user authentication tests
+```
+
+## 🐛 Common Development Issues
+
+### Permission Issues
+
+```bash
+# Fix storage permissions
+chmod -R 775 storage bootstrap/cache
+
+# Fix ownership (Linux/Mac)
+sudo chown -R $USER:www-data storage bootstrap/cache
+```
+
+### Database Issues
+
+```bash
+# Reset database
+php artisan migrate:fresh --seed
+
+# Clear cache
+php artisan config:clear
+php artisan cache:clear
+```
+
+### Asset Issues
+
+```bash
+# Clear and rebuild assets
+rm -rf public/build
+npm run build
+
+# Clear cache
+php artisan view:clear
+```
+
+### Composer Issues
+
+```bash
+# Clear composer cache
+composer clear-cache
+
+# Reinstall dependencies
+rm -rf vendor composer.lock
+composer install
+```
+
+## 📚 Additional Resources
 
 ### Laravel Documentation
-- [Laravel Documentation](https://laravel.com/docs)
-- [Laravel Eloquent](https://laravel.com/docs/eloquent)
-- [Laravel Blade](https://laravel.com/docs/blade)
+- [Laravel 10.x Documentation](https://laravel.com/docs/10.x)
+- [Laravel Breeze Documentation](https://laravel.com/docs/10.x/starter-kits#laravel-breeze)
+- [Laravel Sanctum Documentation](https://laravel.com/docs/10.x/sanctum)
 
 ### Frontend Resources
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [Quill Editor](https://quilljs.com/docs)
-- [Alpine.js](https://alpinejs.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Quill.js Documentation](https://quilljs.com/docs)
+- [SweetAlert2 Documentation](https://sweetalert2.github.io/)
 
 ### Development Tools
-- [Laravel Debugbar](https://github.com/barryvdh/laravel-debugbar)
-- [Laravel Telescope](https://laravel.com/docs/telescope)
-- [Laravel Horizon](https://laravel.com/docs/horizon)
-
-## 🔍 Troubleshooting Development Issues
-
-### Common Issues
-1. **Assets not loading**: Run `npm run dev`
-2. **Database errors**: Check `.env` configuration
-3. **Permission errors**: Set proper file permissions
-4. **Cache issues**: Clear all caches
-
-### Debug Commands
-```bash
-# Check Laravel status
-php artisan about
-
-# Check PHP version
-php --version
-
-# Check Node.js version
-node --version
-
-# Check database connection
-php artisan tinker
-DB::connection()->getPdo();
-```
+- [Laravel Valet](https://laravel.com/docs/10.x/valet)
+- [Laravel Homestead](https://laravel.com/docs/10.x/homestead)
+- [Laravel Telescope](https://laravel.com/docs/10.x/telescope)
 
 ---
 
-**Last Updated**: July 2024  
-**Version**: 1.0.0 
+**Note:** This is a demonstration project by Arian Karimi for portfolio purposes. The development setup showcases modern Laravel development practices and tools. 

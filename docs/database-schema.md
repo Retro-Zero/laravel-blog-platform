@@ -1,21 +1,16 @@
-# Database Schema
+# BlogVerse Database Schema
 
-This document describes the database structure, relationships, and data flow for my Blog Platform. It showcases my database design skills and understanding of relational data modeling.
+This document provides a comprehensive overview of the BlogVerse database structure, including tables, relationships, and data models.
 
 ## 📊 Database Overview
 
-The Blog Platform uses MySQL as the primary database with the following core tables:
+BlogVerse uses MySQL/MariaDB as the primary database system. The schema is designed for a modern blog platform with user authentication, content management, and analytics capabilities.
 
-- **users** - User accounts and authentication
-- **posts** - Blog posts and content
-- **comments** - User comments on posts
-- **categories** - Post categorization
-- **tags** - Post tagging system
-- **post_tag** - Many-to-many relationship between posts and tags
-
-## 🏗️ Table Structures
+## 🗄️ Table Structure
 
 ### Users Table
+
+**Purpose**: Store user account information and authentication data
 
 ```sql
 CREATE TABLE users (
@@ -24,31 +19,49 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at TIMESTAMP NULL,
     password VARCHAR(255) NOT NULL,
-    is_admin BOOLEAN DEFAULT FALSE,
-    avatar VARCHAR(255) NULL,
-    bio TEXT NULL,
-    website VARCHAR(255) NULL,
     remember_token VARCHAR(100) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
 );
 ```
 
-**Fields:**
-- `id`: Primary key
-- `name`: User's display name
-- `email`: Unique email address
-- `email_verified_at`: Email verification timestamp
-- `password`: Hashed password
-- `is_admin`: Admin privileges flag
-- `avatar`: Profile picture path
-- `bio`: User biography
-- `website`: User's website URL
-- `remember_token`: Laravel remember me token
-- `created_at`: Account creation timestamp
-- `updated_at`: Last update timestamp
+**Key Features**:
+- Email verification support
+- Remember me functionality
+- Password hashing via Laravel's Hash facade
+- Timestamp tracking for account creation and updates
+
+**Relationships**:
+- `hasMany` Posts
+- `hasMany` Comments
+- `hasMany` PostViews (for authenticated users)
+
+### Categories Table
+
+**Purpose**: Organize blog posts into logical categories
+
+```sql
+CREATE TABLE categories (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
+);
+```
+
+**Key Features**:
+- SEO-friendly slug generation
+- Optional description field
+- Unique constraint on slug for URL routing
+
+**Relationships**:
+- `hasMany` Posts
 
 ### Posts Table
+
+**Purpose**: Store blog post content and metadata
 
 ```sql
 CREATE TABLE posts (
@@ -65,378 +78,233 @@ CREATE TABLE posts (
     meta_title VARCHAR(255) NULL,
     meta_description TEXT NULL,
     view_count INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    reading_time INT DEFAULT 5,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
-    INDEX idx_posts_user_id (user_id),
-    INDEX idx_posts_category_id (category_id),
-    INDEX idx_posts_status (status),
-    INDEX idx_posts_published_at (published_at)
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 ```
 
-**Fields:**
-- `id`: Primary key
-- `title`: Post title
-- `slug`: URL-friendly title
-- `excerpt`: Short post summary
-- `content`: Full post content (HTML)
-- `featured_image`: Featured image path
-- `user_id`: Author (foreign key to users)
-- `category_id`: Post category (foreign key to categories)
-- `status`: Post publication status
-- `published_at`: Publication timestamp
-- `meta_title`: SEO meta title
-- `meta_description`: SEO meta description
-- `view_count`: Number of views
-- `created_at`: Post creation timestamp
-- `updated_at`: Last update timestamp
+**Key Features**:
+- SEO optimization fields (meta_title, meta_description)
+- Status management (draft, published, archived)
+- View count tracking
+- Reading time calculation
+- Featured image support
+- Excerpt for post previews
+
+**Relationships**:
+- `belongsTo` User
+- `belongsTo` Category
+- `hasMany` Comments
+- `hasMany` PostViews
 
 ### Comments Table
+
+**Purpose**: Store user comments on blog posts
 
 ```sql
 CREATE TABLE comments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    content TEXT NOT NULL,
+    content LONGTEXT NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
     post_id BIGINT UNSIGNED NOT NULL,
-    parent_id BIGINT UNSIGNED NULL,
-    is_approved BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE,
-    INDEX idx_comments_post_id (post_id),
-    INDEX idx_comments_user_id (user_id),
-    INDEX idx_comments_parent_id (parent_id),
-    INDEX idx_comments_is_approved (is_approved)
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 ```
 
-**Fields:**
-- `id`: Primary key
-- `content`: Comment text
-- `user_id`: Comment author (foreign key to users)
-- `post_id`: Associated post (foreign key to posts)
-- `parent_id`: Parent comment for replies (self-referencing)
-- `is_approved`: Comment approval status
-- `created_at`: Comment creation timestamp
-- `updated_at`: Last update timestamp
+**Key Features**:
+- Rich text content support
+- Automatic timestamp tracking
+- Cascade deletion when post or user is deleted
 
-### Categories Table
+**Relationships**:
+- `belongsTo` User
+- `belongsTo` Post
+
+### Post Views Table
+
+**Purpose**: Track anonymous and authenticated post views for analytics
 
 ```sql
-CREATE TABLE categories (
+CREATE TABLE post_views (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT NULL,
-    color VARCHAR(7) DEFAULT '#3B82F6',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_categories_slug (slug)
-);
-```
-
-**Fields:**
-- `id`: Primary key
-- `name`: Category name
-- `slug`: URL-friendly name
-- `description`: Category description
-- `color`: Category color (hex)
-- `created_at`: Category creation timestamp
-- `updated_at`: Last update timestamp
-
-### Tags Table
-
-```sql
-CREATE TABLE tags (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_tags_slug (slug)
-);
-```
-
-**Fields:**
-- `id`: Primary key
-- `name`: Tag name
-- `slug`: URL-friendly name
-- `created_at`: Tag creation timestamp
-- `updated_at`: Last update timestamp
-
-### Post Tags Pivot Table
-
-```sql
-CREATE TABLE post_tag (
     post_id BIGINT UNSIGNED NOT NULL,
-    tag_id BIGINT UNSIGNED NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT UNSIGNED NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    user_agent TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
     
-    PRIMARY KEY (post_id, tag_id),
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
-    INDEX idx_post_tag_post_id (post_id),
-    INDEX idx_post_tag_tag_id (tag_id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_anonymous_post_view (post_id, ip_address, user_agent(255))
 );
 ```
 
-**Fields:**
-- `post_id`: Post ID (part of composite primary key)
-- `tag_id`: Tag ID (part of composite primary key)
-- `created_at`: Relationship creation timestamp
+**Key Features**:
+- Anonymous view tracking via IP address
+- User agent logging for analytics
+- Unique constraint to prevent duplicate views
+- Optional user association for authenticated views
 
-## 🔗 Relationships
+**Relationships**:
+- `belongsTo` Post
+- `belongsTo` User (optional)
+
+### Personal Access Tokens Table
+
+**Purpose**: Support API authentication via Laravel Sanctum
+
+```sql
+CREATE TABLE personal_access_tokens (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tokenable_type VARCHAR(255) NOT NULL,
+    tokenable_id BIGINT UNSIGNED NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    token VARCHAR(64) UNIQUE NOT NULL,
+    abilities TEXT NULL,
+    last_used_at TIMESTAMP NULL,
+    expires_at TIMESTAMP NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    
+    INDEX personal_access_tokens_tokenable_type_tokenable_id_index (tokenable_type, tokenable_id)
+);
+```
+
+**Key Features**:
+- API token management
+- Token expiration support
+- Ability-based permissions
+- Last used tracking
+
+## 🔗 Relationships Overview
 
 ### One-to-Many Relationships
 
-1. **User → Posts**: One user can have many posts
-   ```php
-   // User model
-   public function posts() {
-       return $this->hasMany(Post::class);
-   }
-   
-   // Post model
-   public function user() {
-       return $this->belongsTo(User::class);
-   }
-   ```
+1. **User → Posts**: A user can create multiple posts
+2. **User → Comments**: A user can write multiple comments
+3. **Category → Posts**: A category can contain multiple posts
+4. **Post → Comments**: A post can have multiple comments
+5. **Post → PostViews**: A post can have multiple views
 
-2. **User → Comments**: One user can have many comments
-   ```php
-   // User model
-   public function comments() {
-       return $this->hasMany(Comment::class);
-   }
-   
-   // Comment model
-   public function user() {
-       return $this->belongsTo(User::class);
-   }
-   ```
+### Many-to-One Relationships
 
-3. **Post → Comments**: One post can have many comments
-   ```php
-   // Post model
-   public function comments() {
-       return $this->hasMany(Comment::class);
-   }
-   
-   // Comment model
-   public function post() {
-       return $this->belongsTo(Post::class);
-   }
-   ```
+1. **Posts → User**: Each post belongs to one user
+2. **Posts → Category**: Each post belongs to one category
+3. **Comments → User**: Each comment belongs to one user
+4. **Comments → Post**: Each comment belongs to one post
+5. **PostViews → Post**: Each view belongs to one post
+6. **PostViews → User**: Each view can be associated with one user (optional)
 
-4. **Category → Posts**: One category can have many posts
-   ```php
-   // Category model
-   public function posts() {
-       return $this->hasMany(Post::class);
-   }
-   
-   // Post model
-   public function category() {
-       return $this->belongsTo(Category::class);
-   }
-   ```
+## 📈 Data Flow
 
-### Many-to-Many Relationships
+### Post Creation Flow
+1. User creates post via form
+2. Post saved with `status = 'draft'`
+3. User publishes post → `status = 'published'`
+4. `published_at` timestamp set
+5. Post becomes visible on public pages
 
-1. **Posts ↔ Tags**: Many posts can have many tags
-   ```php
-   // Post model
-   public function tags() {
-       return $this->belongsToMany(Tag::class);
-   }
-   
-   // Tag model
-   public function posts() {
-       return $this->belongsToMany(Post::class);
-   }
-   ```
+### View Tracking Flow
+1. User visits post page
+2. System checks for existing view (IP + User Agent)
+3. If unique, creates new PostView record
+4. Updates post `view_count` for performance
+5. Analytics data available for reporting
 
-### Self-Referencing Relationships
+### Comment Flow
+1. User submits comment on post
+2. Comment saved with user and post relationships
+3. Comment appears on post page
+4. Email notifications sent (if configured)
 
-1. **Comments → Comments**: Comments can have parent comments (replies)
-   ```php
-   // Comment model
-   public function parent() {
-       return $this->belongsTo(Comment::class, 'parent_id');
-   }
-   
-   public function replies() {
-       return $this->hasMany(Comment::class, 'parent_id');
-   }
-   ```
+## 🔍 Indexes and Performance
 
-## 📊 Sample Data
+### Primary Indexes
+- All tables have `id` as primary key
+- Foreign key columns are indexed automatically
 
-### Default Categories
-```sql
-INSERT INTO categories (name, slug, description, color) VALUES
-('Technology', 'technology', 'Tech-related posts', '#3B82F6'),
-('Lifestyle', 'lifestyle', 'Lifestyle and personal posts', '#10B981'),
-('Travel', 'travel', 'Travel experiences and tips', '#F59E0B'),
-('Food', 'food', 'Food and cooking posts', '#EF4444'),
-('Business', 'business', 'Business and entrepreneurship', '#8B5CF6');
-```
+### Unique Indexes
+- `users.email` - Ensures unique email addresses
+- `posts.slug` - Ensures unique post URLs
+- `categories.slug` - Ensures unique category URLs
+- `personal_access_tokens.token` - Ensures unique API tokens
+- `post_views` composite unique - Prevents duplicate anonymous views
 
-### Default Tags
-```sql
-INSERT INTO tags (name, slug) VALUES
-('laravel', 'laravel'),
-('php', 'php'),
-('web-development', 'web-development'),
-('tutorial', 'tutorial'),
-('tips', 'tips'),
-('coding', 'coding'),
-('design', 'design'),
-('productivity', 'productivity');
-```
+### Performance Considerations
+- `posts.status` indexed for filtering published posts
+- `posts.published_at` indexed for chronological ordering
+- `posts.user_id` indexed for user post queries
+- `posts.category_id` indexed for category filtering
 
-## 🔍 Common Queries
+## 🛡️ Security Features
 
-### Get Published Posts with Author and Category
-```sql
-SELECT 
-    p.*,
-    u.name as author_name,
-    c.name as category_name
-FROM posts p
-JOIN users u ON p.user_id = u.id
-LEFT JOIN categories c ON p.category_id = c.id
-WHERE p.status = 'published'
-ORDER BY p.published_at DESC;
-```
-
-### Get Posts with Tags
-```sql
-SELECT 
-    p.*,
-    GROUP_CONCAT(t.name) as tags
-FROM posts p
-LEFT JOIN post_tag pt ON p.id = pt.post_id
-LEFT JOIN tags t ON pt.tag_id = t.id
-WHERE p.status = 'published'
-GROUP BY p.id
-ORDER BY p.published_at DESC;
-```
-
-### Get Comments with User Info
-```sql
-SELECT 
-    c.*,
-    u.name as user_name,
-    u.avatar as user_avatar
-FROM comments c
-JOIN users u ON c.user_id = u.id
-WHERE c.post_id = ? AND c.is_approved = 1
-ORDER BY c.created_at ASC;
-```
-
-## 🛠️ Migrations
-
-### Create Posts Migration
-```php
-public function up()
-{
-    Schema::create('posts', function (Blueprint $table) {
-        $table->id();
-        $table->string('title');
-        $table->string('slug')->unique();
-        $table->text('excerpt')->nullable();
-        $table->longText('content');
-        $table->string('featured_image')->nullable();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
-        $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
-        $table->timestamp('published_at')->nullable();
-        $table->string('meta_title')->nullable();
-        $table->text('meta_description')->nullable();
-        $table->integer('view_count')->default(0);
-        $table->timestamps();
-        
-        $table->index(['user_id', 'status']);
-        $table->index('published_at');
-    });
-}
-```
-
-### Create Comments Migration
-```php
-public function up()
-{
-    Schema::create('comments', function (Blueprint $table) {
-        $table->id();
-        $table->text('content');
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('post_id')->constrained()->onDelete('cascade');
-        $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
-        $table->boolean('is_approved')->default(true);
-        $table->timestamps();
-        
-        $table->index(['post_id', 'is_approved']);
-    });
-}
-```
-
-## 📈 Performance Considerations
-
-### Indexes
-- Primary keys are automatically indexed
-- Foreign keys should be indexed for better JOIN performance
-- Frequently queried columns (status, published_at) are indexed
-- Slug columns are indexed for URL lookups
-
-### Query Optimization
-- Use eager loading to prevent N+1 queries
-- Implement pagination for large datasets
-- Cache frequently accessed data
-- Use database transactions for data integrity
-
-### Example Optimized Query
-```php
-// Eager load relationships to prevent N+1 queries
-$posts = Post::with(['user', 'category', 'tags'])
-    ->where('status', 'published')
-    ->orderBy('published_at', 'desc')
-    ->paginate(10);
-```
-
-## 🔒 Security Considerations
-
-### Data Validation
-- Validate all user inputs
-- Sanitize HTML content before storage
-- Use prepared statements (Laravel Eloquent handles this)
+### Data Protection
+- Passwords hashed using Laravel's Hash facade
+- Email addresses validated and sanitized
+- Content sanitized to prevent XSS attacks
+- SQL injection protection via Eloquent ORM
 
 ### Access Control
-- Implement proper authorization checks
-- Validate user permissions for admin actions
-- Protect against SQL injection (Laravel handles this)
+- User authentication required for post creation
+- Comment moderation capabilities
+- Post status management (draft/published/archived)
+- API token expiration and ability management
 
-### Data Integrity
-- Use foreign key constraints
-- Implement soft deletes where appropriate
-- Regular database backups
+## 📊 Analytics and Reporting
 
-## 📚 Related Documentation
+### View Analytics
+- Anonymous view tracking via IP address
+- User agent logging for device/browser analytics
+- View count aggregation for performance
+- Time-based view analysis capabilities
 
-- [Installation Guide](installation.md) - Database setup
-- [Development Setup](development-setup.md) - Local database configuration
-- [API Documentation](api-documentation.md) - Database operations via API
+### Content Analytics
+- Post popularity based on view count
+- Comment engagement metrics
+- User activity tracking
+- Category performance analysis
+
+## 🔧 Migration Management
+
+### Migration Files
+- `0001_01_01_000000_create_users_table.php`
+- `0001_01_01_000001_create_cache_table.php`
+- `0001_01_01_000002_create_jobs_table.php`
+- `2025_07_12_140300_create_categories_table.php`
+- `2025_07_12_140342_create_posts_table.php`
+- `2025_07_13_153253_create_personal_access_tokens_table.php`
+- `2025_07_13_161643_create_comments_table.php`
+- `2025_07_14_135710_create_post_views_table.php`
+- `2025_07_16_145523_add_reading_time_to_posts_table.php`
+
+### Seeding
+- `DatabaseSeeder.php` - Main seeder orchestration
+- `RealPostsSeeder.php` - Demo content creation
+- Factory classes for testing data generation
+
+## 🚀 Scaling Considerations
+
+### Database Optimization
+- Proper indexing for common queries
+- Efficient relationship loading
+- View count caching strategies
+- Database connection pooling
+
+### Content Management
+- Image optimization and CDN integration
+- Content caching strategies
+- Search optimization
+- SEO-friendly URL structures
 
 ---
 
-**Last Updated**: July 2024  
-**Version**: 1.0.0 
+**Note:** This schema is designed for a demonstration project by Arian Karimi. For production use, additional security, performance, and scalability considerations would be implemented. 
