@@ -25,37 +25,44 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create();
 
         // Add real categories
-        \App\Models\Category::insert([
-            ['name' => 'Technology'],
-            ['name' => 'Health'],
-            ['name' => 'Lifestyle'],
-            ['name' => 'Business'],
-            ['name' => 'Environment'],
-            ['name' => 'Psychology'],
-            ['name' => 'Marketing'],
-            ['name' => 'Travel'],
-            ['name' => 'Food'],
-            ['name' => 'Science'],
-            ['name' => 'Education'],
-            ['name' => 'Finance'],
-            ['name' => 'Art'],
-            ['name' => 'Sports'],
-            ['name' => 'Parenting'],
-            ['name' => 'Fashion'],
-            ['name' => 'Photography'],
-            ['name' => 'Books'],
-            ['name' => 'Movies'],
-            ['name' => 'Music'],
-        ]);
+        $categories = [
+            'Technology',
+            'Health',
+            'Lifestyle',
+            'Business',
+            'Environment',
+            'Psychology',
+            'Marketing',
+            'Travel',
+            'Food',
+            'Science',
+            'Education',
+            'Finance',
+            'Art',
+            'Sports',
+            'Parenting',
+            'Fashion',
+            'Photography',
+            'Books',
+            'Movies',
+            'Music',
+        ];
+
+        foreach ($categories as $categoryName) {
+            Category::create(['name' => $categoryName]);
+        }
+
+        // Get all categories for use in posts
+        $allCategories = Category::all();
 
         // Create posts with relationships
         Post::factory(20)
             ->published()
             ->create()
-            ->each(function ($post) use ($categories) {
+            ->each(function ($post) use ($allCategories) {
                 $post->update([
                     'user_id' => User::inRandomOrder()->first()->id,
-                    'category_id' => $categories->random()->id,
+                    'category_id' => $allCategories->random()->id,
                 ]);
             });
 
@@ -63,10 +70,10 @@ class DatabaseSeeder extends Seeder
         Post::factory(5)
             ->draft()
             ->create()
-            ->each(function ($post) use ($categories) {
+            ->each(function ($post) use ($allCategories) {
                 $post->update([
                     'user_id' => User::inRandomOrder()->first()->id,
-                    'category_id' => $categories->random()->id,
+                    'category_id' => $allCategories->random()->id,
                 ]);
             });
 
@@ -74,10 +81,10 @@ class DatabaseSeeder extends Seeder
         Post::factory(3)
             ->archived()
             ->create()
-            ->each(function ($post) use ($categories) {
+            ->each(function ($post) use ($allCategories) {
                 $post->update([
                     'user_id' => User::inRandomOrder()->first()->id,
-                    'category_id' => $categories->random()->id,
+                    'category_id' => $allCategories->random()->id,
                 ]);
             });
     }
