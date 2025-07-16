@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>BlogVerse by Arian Karimi</title>
 
         <!-- Quill Editor CDN -->
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">

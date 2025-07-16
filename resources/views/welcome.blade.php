@@ -321,7 +321,8 @@
                         @endguest
                     </div>
                     <div class="border-t border-white/20 pt-8">
-                        <p class="text-white/40 text-sm">&copy; {{ date('Y') }} BlogVerse. All rights reserved.</p>
+                        <p class="text-white/40 text-sm">&copy; {{ date('Y') }} BlogVerse by Arian Karimi. All rights reserved.</p>
+                        <p class="text-white/30 text-xs mt-2">A demo project for the personal portfolio of Arian Karimi.</p>
                     </div>
                 </div>
             </div>
