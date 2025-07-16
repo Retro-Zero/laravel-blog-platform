@@ -24,8 +24,29 @@ class DatabaseSeeder extends Seeder
         // Create additional users
         User::factory(5)->create();
 
-        // Create categories
-        $categories = Category::factory(8)->create();
+        // Add real categories
+        \App\Models\Category::insert([
+            ['name' => 'Technology'],
+            ['name' => 'Health'],
+            ['name' => 'Lifestyle'],
+            ['name' => 'Business'],
+            ['name' => 'Environment'],
+            ['name' => 'Psychology'],
+            ['name' => 'Marketing'],
+            ['name' => 'Travel'],
+            ['name' => 'Food'],
+            ['name' => 'Science'],
+            ['name' => 'Education'],
+            ['name' => 'Finance'],
+            ['name' => 'Art'],
+            ['name' => 'Sports'],
+            ['name' => 'Parenting'],
+            ['name' => 'Fashion'],
+            ['name' => 'Photography'],
+            ['name' => 'Books'],
+            ['name' => 'Movies'],
+            ['name' => 'Music'],
+        ]);
 
         // Create posts with relationships
         Post::factory(20)
