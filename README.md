@@ -60,14 +60,7 @@ BlogVerse is a beautifully designed, modern blog platform built with Laravel. It
    php artisan serve
    ```
 
-## 📸 Screenshots
-![BlogVerse Home](docs/screenshots/home.png)
-![BlogVerse Post](docs/screenshots/post.png)
 
-## 🙏 Credits
-- Demo project by **Arian Karimi**
-- Images from [Unsplash](https://unsplash.com/)
-- Inspired by modern design trends
 
 ---
 
